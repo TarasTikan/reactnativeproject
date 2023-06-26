@@ -1,7 +1,6 @@
 import "react-native-gesture-handler";
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack";
 import { PostsScreen } from "./Screens/mainScreen/PostsScreen";
 import { CreatePostScreen } from "./Screens/mainScreen/CreatePostsScreen";
 import { ProfileScreen } from "./Screens/mainScreen/ProfileScreen";
@@ -10,6 +9,7 @@ import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { RegistrationScreen } from "./Screens/auth/RegistrationScreen";
 import { CommentsScreen } from "./Screens/mainScreen/CommentsScreen";
+import { createStackNavigator } from "@react-navigation/stack";
 const MainStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 export function useRoutes(isAuth) {

@@ -1,8 +1,16 @@
 import { StatusBar } from "expo-status-bar";
 import { Feather } from "@expo/vector-icons";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { Image, StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
+import { useEffect, useState } from "react";
 
-export const PostsScreen = () => {
+export const PostsScreen = ({ route, navigation }) => {
+  const [posts, setPosts] = useState([]);
+  useEffect(() => {
+    if (route.params) {
+      setPosts((prevState) => [...prevState, route.params]);
+    }
+  }, [route.params]);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -26,34 +34,43 @@ export const PostsScreen = () => {
           <Text style={styles.textPost}>email@example.com</Text>
         </View>
       </View>
-      <View style={styles.postsUser}>
-        <Image
-          source={require("../../assets/images/Post1.jpg")}
-          style={styles.postImg}
-        />
-        <Text style={styles.titlePost}>Лес</Text>
-        <View style={styles.infoPost}>
-          <TouchableOpacity
-            style={styles.commentsPost}
-            onPress={() => navigation.navigate("Comments")}
-          >
-            <Feather name="message-circle" size={24} color="#BDBDBD" />
-            <Text style={{ ...styles.socInfo, marginRight: "auto" }}>0</Text>
-          </TouchableOpacity>
-          <Feather name="map-pin" size={24} color="#BDBDBD" />
-          <Text
-            style={{
-              ...styles.socInfo,
-              textDecorationLine: "underline",
-              textDecorationColor: "#000",
-              marginRight: 0,
-              color: "#212121",
-            }}
-          >
-            Ivano-Frankivs'k Region, Ukraine
-          </Text>
-        </View>
-      </View>
+      <FlatList
+        data={posts}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.postsUser}>
+            <Image
+              source={{uri: item.photo}}
+              style={styles.postImg}
+            />
+            <Text style={styles.titlePost}>{item.title}</Text>
+            <View style={styles.infoPost}>
+              <TouchableOpacity
+                style={styles.commentsPost}
+                onPress={() => navigation.navigate("Comments")}
+              >
+                <Feather name="message-circle" size={24} color="#BDBDBD" />
+                <Text style={{ ...styles.socInfo, marginRight: "auto" }}>
+                  0
+                </Text>
+              </TouchableOpacity>
+              <Feather name="map-pin" size={24} color="#BDBDBD" />
+              <Text
+                style={{
+                  ...styles.socInfo,
+                  textDecorationLine: "underline",
+                  textDecorationColor: "#000",
+                  marginRight: 0,
+                  color: "#212121",
+                }}
+              >
+                {item.map}
+              </Text>
+            </View>
+          </View>
+        )}
+      />
+
       <StatusBar style="auto" />
     </View>
   );
