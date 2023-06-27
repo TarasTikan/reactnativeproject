@@ -52,17 +52,14 @@ export const CreatePostScreen = ({ navigation }) => {
     return <Text>No access to camera</Text>;
   }
   const takePhoto = async () => {
-    if (cameraRef) {
-      const { uri } = await cameraRef.takePictureAsync();
-      const location = await Location.getCurrentPositionAsync();
-       const coords = {
-         latitude: location.coords.latitude,
-         longitude: location.coords.longitude,
-       };
-       await MediaLibrary.createAssetAsync(uri);
-       setPhoto(uri);
-       setLocation(coords);
-    }
+  if (cameraRef) {
+    const { uri } = await cameraRef.takePictureAsync();
+    const { coords } = await Location.getCurrentPositionAsync(); 
+    const { latitude, longitude } = coords; 
+    await MediaLibrary.createAssetAsync(uri);
+    setPhoto(uri);
+    setLocation({ latitude, longitude }); 
+  }
   };
   const sendInfo = () => {
     navigation.navigate("DefaultScreen", {
