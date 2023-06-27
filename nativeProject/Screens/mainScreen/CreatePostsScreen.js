@@ -27,6 +27,7 @@ export const CreatePostScreen = ({ navigation }) => {
   const [photo, setPhoto] = useState("");
   const [isShowBtn, setIsShowBtn] = useState(false);
   const [state, setState] = useState(initialState);
+  const [location, setLocation] = useState(null);
   const keyboardHide = () => {
     Keyboard.dismiss();
     setTimeout(() => {
@@ -54,14 +55,20 @@ export const CreatePostScreen = ({ navigation }) => {
     if (cameraRef) {
       const { uri } = await cameraRef.takePictureAsync();
       const location = await Location.getCurrentPositionAsync();
-      console.log("location latitude", location.coords.latitude);
-      console.log("location latitude", location.coords.longitude);
-      setPhoto(uri);
-      await MediaLibrary.createAssetAsync(uri);
+       const coords = {
+         latitude: location.coords.latitude,
+         longitude: location.coords.longitude,
+       };
+       await MediaLibrary.createAssetAsync(uri);
+       setPhoto(uri);
+       setLocation(coords);
     }
   };
   const sendInfo = () => {
-    navigation.navigate("Posts", { ...state, photo: photo });
+    navigation.navigate("DefaultScreen", {
+      ...state,
+      photo: photo
+    });
   };
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>

@@ -9,15 +9,12 @@ export const CommentsScreen = ({navigation}) => {
             name="arrow-left"
             size={24}
             color="black"
-            onPress={() => navigation.navigate("Posts")}
+            onPress={() => navigation.navigate("DefaultScreen")}
           />
           <Text style={styles.headerText}>Комментарии</Text>
         </View>
         <View style={styles.formComments}>
-          <TextInput
-            style={styles.inputForm}
-            placeholder="Комментировать..."
-          />
+          <TextInput style={styles.inputForm} placeholder="Комментировать..." />
           <View style={styles.submitComments}>
             <AntDesign name="arrowup" size={20} color="#FFFFFF" />
           </View>

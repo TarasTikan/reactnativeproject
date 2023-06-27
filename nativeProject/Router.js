@@ -8,8 +8,8 @@ import { LoginScreen } from "./Screens/auth/LoginScreen";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { RegistrationScreen } from "./Screens/auth/RegistrationScreen";
-import { CommentsScreen } from "./Screens/mainScreen/CommentsScreen";
 import { createStackNavigator } from "@react-navigation/stack";
+import { CommentsScreen } from "./Screens/nestedScreens/CommentsScreen";
 const MainStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 export function useRoutes(isAuth) {
@@ -86,11 +86,7 @@ export function useRoutes(isAuth) {
         name="Profile"
         component={ProfileScreen}
       />
-      <Tab.Screen
-        options={{ tabBarItemStyle: { display: "none" }, headerShown: false }}
-        name="Comments"
-        component={CommentsScreen}
-      />
+
     </Tab.Navigator>
   );
 }
