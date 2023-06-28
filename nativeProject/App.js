@@ -20,18 +20,17 @@
 // });
 
 import "react-native-gesture-handler";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { useRoutes } from "./Router";
 import { useFonts } from "expo-font";
 import { useCallback } from "react";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import { store } from "./redux/store";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./firebase/config";
+import { Main } from "./Components/Main";
+
 
 export default function App() {
-  const [state, setState] = useState(null)
   const [fontsLoaded] = useFonts({
     "Roboto-Bold": require("./assets/fonts/Roboto-Bold.ttf"),
     "Roboto-Medium": require("./assets/fonts/Roboto-Medium.ttf"),
@@ -45,11 +44,9 @@ export default function App() {
   if (!fontsLoaded) {
     return null;
   }
-  onAuthStateChanged(auth, user => setState(user))
-  const routing = useRoutes(state);
   return (
     <Provider store={store}>
-      <NavigationContainer>{routing}</NavigationContainer>
+      <Main/>
     </Provider>
   );
 }

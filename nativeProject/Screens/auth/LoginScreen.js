@@ -1,7 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import * as SplashScreen from "expo-splash-screen";
+import { useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import * as Font from "expo-font";
 import {
   StyleSheet,
   Text,
@@ -22,7 +20,6 @@ const initialState = {
   password: "",
 };
 
-SplashScreen.preventAutoHideAsync();
 export const LoginScreen = ({ navigation }) => {
   const [isShowKeyBoard, setShowKeyBoard] = useState(false);
   const [state, setState] = useState(initialState);
