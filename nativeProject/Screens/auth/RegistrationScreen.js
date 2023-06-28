@@ -1,7 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import * as SplashScreen from "expo-splash-screen";
+import { useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import * as Font from "expo-font";
 import {
   StyleSheet,
   Text,
@@ -13,32 +11,32 @@ import {
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
-  Button,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { authSignUpUser } from "../../redux/auth/authOperations";
 const initialState = {
   email: "",
   login: "",
   password: "",
 };
-SplashScreen.preventAutoHideAsync();
+
 export const RegistrationScreen = ({ navigation }) => {
   const [isShowKeyBoard, setShowKeyBoard] = useState(false);
   const [state, setState] = useState(initialState);
+  const dispatch = useDispatch()
   const keyboardHide = () => {
     setShowKeyBoard(false);
     Keyboard.dismiss();
   };
-  const BtnkeyboardHide = () => {
+  const handleSubmit = () => {
     setShowKeyBoard(false);
     Keyboard.dismiss();
     setState(initialState);
-    console.log(state);
+    dispatch(authSignUpUser(state));
   };
 
   return (
-    <TouchableWithoutFeedback
-      onPress={keyboardHide}
-    >
+    <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <ImageBackground
           source={require("../../assets/images/bg-defolt.jpg")}
@@ -95,7 +93,7 @@ export const RegistrationScreen = ({ navigation }) => {
                     display: isShowKeyBoard ? "none" : "flex",
                   }}
                   activeOpacity={0.8}
-                  onPress={BtnkeyboardHide}
+                  onPress={handleSubmit}
                 >
                   <Text style={styles.btnText}>Зарегистрироваться</Text>
                 </TouchableOpacity>

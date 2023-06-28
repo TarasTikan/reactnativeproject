@@ -15,6 +15,8 @@ import {
   TouchableWithoutFeedback,
   Button,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { authSignInUser } from "../../redux/auth/authOperations";
 const initialState = {
   email: "",
   password: "",
@@ -24,20 +26,19 @@ SplashScreen.preventAutoHideAsync();
 export const LoginScreen = ({ navigation }) => {
   const [isShowKeyBoard, setShowKeyBoard] = useState(false);
   const [state, setState] = useState(initialState);
+  const dispatch = useDispatch()
   const keyboardHide = () => {
     setShowKeyBoard(false);
     Keyboard.dismiss();
   };
-  const BtnkeyboardHide = () => {
+  const handleSubmit = () => {
     setShowKeyBoard(false);
     Keyboard.dismiss();
     setState(initialState);
-        console.log(state);
+    dispatch(authSignInUser(state))
   };
   return (
-    <TouchableWithoutFeedback
-      onPress={keyboardHide}
-    >
+    <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <ImageBackground
           source={require("../../assets/images/bg-defolt.jpg")}
@@ -84,7 +85,7 @@ export const LoginScreen = ({ navigation }) => {
                     display: isShowKeyBoard ? "none" : "flex",
                   }}
                   activeOpacity={0.8}
-                  onPress={BtnkeyboardHide}
+                  onPress={handleSubmit}
                 >
                   <Text style={styles.btnText}>Войти</Text>
                 </TouchableOpacity>
