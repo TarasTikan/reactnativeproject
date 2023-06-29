@@ -3,7 +3,8 @@ import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
-export const MapScreen = ({ navigation}) => {
+export const MapScreen = ({ route, navigation}) => {
+  const {latitude, longitude} = route.params.location;
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -18,8 +19,8 @@ export const MapScreen = ({ navigation}) => {
       <MapView
         style={styles.mapStyle}
         region={{
-          latitude: 37.78825,
-          longitude: -122.4324,
+          latitude,
+          longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
@@ -30,7 +31,7 @@ export const MapScreen = ({ navigation}) => {
       >
         <Marker
           title="I am here"
-          coordinate={{ latitude: 37.78825, longitude: -122.4324 }}
+          coordinate={{ latitude, longitude}}
           description="Hello"
         />
       </MapView>

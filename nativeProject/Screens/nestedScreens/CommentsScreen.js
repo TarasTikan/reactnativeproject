@@ -1,8 +1,46 @@
-import { StatusBar, StyleSheet, Text, TextInput, View } from "react-native"
+import { FlatList, Image, Keyboard, KeyboardAvoidingView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native"
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-export const CommentsScreen = ({navigation}) => {
-    return (
+import { useEffect, useState } from "react";
+import { addDoc, collection, doc, getDocs } from "firebase/firestore";
+import { db } from "../../firebase/config";
+import { useSelector } from "react-redux";
+import { SafeAreaView } from "react-native-safe-area-context";
+export const CommentsScreen = ({route, navigation}) => {
+const [comment, setComment] = useState("");
+const [sendedComment, setSendedComment] = useState("");
+  const [allComments, setAllComments] = useState([]);
+const {login} = useSelector((state)=>state.auth)
+const {postId} = route.params
+  const keyboardHide = () => {
+    Keyboard.dismiss();
+  };
+   const createComment = async () => {
+    const docRef = await doc(db, `posts/${postId}`);
+
+    const colRef = await collection(docRef, "comments");
+    addDoc(colRef, {
+      comment,
+      login,
+    });
+    setSendedComment(comment);
+    setComment("");
+    Keyboard.dismiss();
+   };
+  const getAllPosts = async () => {
+    const querySnapshot = await getDocs(
+      collection(db, `posts/${postId}/comments`)
+    );
+    const allCommentsArray = [];
+
+    querySnapshot.forEach((doc) => {
+      allCommentsArray.push({ ...doc.data(), id: doc.id });
+    });
+    setAllComments(allCommentsArray);
+  };
+  useEffect(()=>{getAllPosts()},[])
+  return (
+    <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Feather
@@ -13,16 +51,44 @@ export const CommentsScreen = ({navigation}) => {
           />
           <Text style={styles.headerText}>Комментарии</Text>
         </View>
-        <View style={styles.formComments}>
-          <TextInput style={styles.inputForm} placeholder="Комментировать..." />
-          <View style={styles.submitComments}>
-            <AntDesign name="arrowup" size={20} color="#FFFFFF" />
+        <SafeAreaView style={styles.containerListComments}>
+          <FlatList
+            data={allComments}
+            renderItem={({ item }) =>
+                <View style={styles.containerComment}>
+                  <View style={styles.textContainerCommentOwn}>
+                    <Text style={styles.textComment}>{item.comment}</Text>
+                  </View>
+
+                  <Image source={item.avatar} style={styles.imageCommentOwn} />
+                </View>
+         
+            }
+            keyExtractor={(item) => item.id}
+          />
+        </SafeAreaView>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.formComments}>
+            <TextInput
+              style={styles.inputForm}
+              placeholder="Комментировать..."
+              onChangeText={setComment}
+            />
+            <TouchableOpacity
+              style={styles.submitComments}
+              onPress={createComment}
+            >
+              <AntDesign name="arrowup" size={20} color="#FFFFFF" />
+            </TouchableOpacity>
           </View>
-        </View>
+        </KeyboardAvoidingView>
         <StatusBar style="auto" />
       </View>
-    );
-}
+    </TouchableWithoutFeedback>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -70,4 +136,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
+   containerComment: {
+    borderRadius: 5,
+    flexDirection: 'row',
+
+    marginHorizontal: 16,
+    marginBottom: 24,
+  },
+  textContainerCommentOwn: {
+    flex: 1,
+    borderBottomRightRadius: 6,
+    borderBottomLeftRadius: 6,
+    borderTopLeftRadius: 6,
+    padding: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
+  },
+  textContainerCommentOther: {
+    flex: 1,
+    borderBottomRightRadius: 6,
+    borderBottomLeftRadius: 6,
+    borderTopRightRadius: 6,
+    padding: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
+  },
+  imageCommentOwn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    marginLeft: 16,
+  },
+  imageCommentOther: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    marginRight: 16,
+  },
+  textComment: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  containerListComments: {
+    marginTop: 34,
+    flex: 1,}
 });

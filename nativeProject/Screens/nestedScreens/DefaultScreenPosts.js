@@ -11,16 +11,26 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { authSignOutUser } from "../../redux/auth/authOperations";
+import { db } from "../../firebase/config";
+import { collection, getDocs } from "firebase/firestore";
 
 
-export const DefaultScreenPost = ({ route, navigation }) => {
+export const DefaultScreenPost = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const dispatch = useDispatch()
+  const getAllPost = async () => {
+   const collectionPosts = await getDocs(collection(db, "posts"));
+     const postsFromDB = collectionPosts.docs.map((doc) => ({
+       ...doc.data(),
+       id: doc.id,
+     }));
+     setPosts(postsFromDB);
+  }
+  
     useEffect(() => {
-    if (route.params) {
-      setPosts((prevState) => [...prevState, route.params]);
-    }
-  }, [route.params]);
+console.log("Use Effect Default Screen Post");
+getAllPost();
+  }, []);
   const signOutUser = () => {
     dispatch(authSignOutUser());
   }
@@ -53,12 +63,14 @@ export const DefaultScreenPost = ({ route, navigation }) => {
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={styles.postsUser}>
-            <Image source={{ uri: item.photo }} style={styles.postImg} />
-            <Text style={styles.titlePost}>{item.title}</Text>
+            <Image source={{ uri: item.photoUrl }} style={styles.postImg} />
+            <Text style={styles.titlePost}>{item.titlePhoto}</Text>
             <View style={styles.infoPost}>
               <TouchableOpacity
                 style={styles.commentsPost}
-                onPress={() => navigation.navigate("Comments")}
+                onPress={() =>
+                  navigation.navigate("Comments", { postId: item.userId })
+                }
               >
                 <Feather name="message-circle" size={24} color="#BDBDBD" />
                 <Text style={{ ...styles.socInfo, marginRight: "auto" }}>
@@ -69,8 +81,7 @@ export const DefaultScreenPost = ({ route, navigation }) => {
                 style={styles.mapPost}
                 onPress={() =>
                   navigation.navigate("Map", {
-                    latitude: posts.latitude,
-                    longitude: posts.longitude,
+                    location: item.location,
                   })
                 }
               >
@@ -84,7 +95,7 @@ export const DefaultScreenPost = ({ route, navigation }) => {
                     color: "#212121",
                   }}
                 >
-                  {item.map}
+                  {item.mapPhotoText}
                 </Text>
               </TouchableOpacity>
             </View>

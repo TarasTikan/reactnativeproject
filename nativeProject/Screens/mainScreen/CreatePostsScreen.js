@@ -17,6 +17,13 @@ import { useEffect, useState } from "react";
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import * as Location from "expo-location";
+import { db, storage } from "../../firebase/config";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+import { addDoc, collection, doc, getDocs, setDoc } from "firebase/firestore";
+import { useSelector } from "react-redux";
+
+// import { ref } from "firebase/storage";
 const initialState = {
   title: "",
   map: "",
@@ -28,19 +35,27 @@ export const CreatePostScreen = ({ navigation }) => {
   const [isShowBtn, setIsShowBtn] = useState(false);
   const [state, setState] = useState(initialState);
   const [location, setLocation] = useState(null);
+   const { userId, login } = useSelector((state) => state.auth);
   const keyboardHide = () => {
     Keyboard.dismiss();
     setTimeout(() => {
       setIsShowBtn(false);
     }, 20);
   };
-
   useEffect(() => {
     (async () => {
-      const location = await Location.requestForegroundPermissionsAsync();
+      let { status } = await Location.requestForegroundPermissionsAsync();
+
+      // let location = await Location.getCurrentPositionAsync({});
+ let { coords } = await Location.getCurrentPositionAsync();
+ const { latitude, longitude } = coords;
+ setLocation({ latitude, longitude });
+    })();
+  }, []);
+  useEffect(() => {
+    (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       await MediaLibrary.requestPermissionsAsync();
-
       setHasPermission(status === "granted");
     })();
   }, []);
@@ -52,22 +67,56 @@ export const CreatePostScreen = ({ navigation }) => {
     return <Text>No access to camera</Text>;
   }
   const takePhoto = async () => {
-  if (cameraRef) {
-    const { uri } = await cameraRef.takePictureAsync();
-    const { coords } = await Location.getCurrentPositionAsync(); 
-    const { latitude, longitude } = coords; 
-    await MediaLibrary.createAssetAsync(uri);
-    setPhoto(uri);
-    setLocation({ latitude, longitude }); 
+    if (cameraRef) {
+      const { uri } = await cameraRef.takePictureAsync();
+      await MediaLibrary.createAssetAsync(uri);
+      setPhoto(uri);
+    }
+  };
+    const setUserLocation = async () => {
+      (async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+
+         let { coords } = await Location.getCurrentPositionAsync();
+          const { latitude, longitude } = coords;
+         setLocation({ latitude, longitude });
+      })();
+
+    };
+  const uploadPhotoToServer = async () => {
+    try {
+      const response = await fetch(photo);
+      const file = await response.blob();
+      const uniquePhotoId = Date.now().toString();
+      const data = ref(storage, `/postImages/${uniquePhotoId}`);
+      const snapshot = await uploadBytes(data, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      return downloadURL;
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+    }
+  };
+  const uploadPostToServer = async () => {
+  try {
+    const photoUrl = await uploadPhotoToServer();
+   await setDoc(doc(db, "posts", userId), {
+     photoUrl,
+     titlePhoto: state.title,
+     mapPhotoText: state.map,
+     location: location,
+     userId,
+     login,
+   });
+  } catch (e) {
+    console.error("Error adding document: ", e);
   }
-  };
-  const sendInfo = () => {
-    navigation.navigate("DefaultScreen", {
-      ...state,
-      photo: photo
-    });
-  };
-  return (
+}
+const sendInfo = async () => {
+  uploadPostToServer()
+  navigation.navigate("DefaultScreen");
+  setUserLocation();
+};
+return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <View style={styles.header}>
