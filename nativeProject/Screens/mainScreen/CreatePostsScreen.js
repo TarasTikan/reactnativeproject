@@ -99,12 +99,13 @@ export const CreatePostScreen = ({ navigation }) => {
   const uploadPostToServer = async () => {
   try {
     const photoUrl = await uploadPhotoToServer();
-   await setDoc(doc(db, "posts", userId), {
+    const postId = Date.now().toString();
+   await setDoc(doc(db, "posts", postId), {
      photoUrl,
      titlePhoto: state.title,
      mapPhotoText: state.map,
      location: location,
-     userId,
+     userId: postId,
      login,
    });
   } catch (e) {

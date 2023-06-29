@@ -2,7 +2,7 @@ import { FlatList, Image, Keyboard, KeyboardAvoidingView, StatusBar, StyleSheet,
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { addDoc, collection, doc, getDocs } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { useSelector } from "react-redux";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -55,6 +55,7 @@ const {postId} = route.params
           <FlatList
             data={allComments}
             renderItem={({ item }) =>
+
                 <View style={styles.containerComment}>
                   <View style={styles.textContainerCommentOwn}>
                     <Text style={styles.textComment}>{item.comment}</Text>

@@ -26,7 +26,6 @@ export const DefaultScreenPost = ({ navigation }) => {
      }));
      setPosts(postsFromDB);
   }
-  
     useEffect(() => {
 console.log("Use Effect Default Screen Post");
 getAllPost();
