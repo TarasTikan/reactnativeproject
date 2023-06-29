@@ -1,20 +1,27 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile,
+} from "firebase/auth";
 import { auth } from "../../firebase/config";
-import { updateUserProfile } from "./authReducer";
-export const authSignUpUser = ({ email, password, login }) => async (dispatch, getState) => {
+import { authSignOut, authStateChange, updateUserProfile } from "./authReducer";
+export const authSignUpUser =
+  ({ email, password, login }) =>
+  async (dispatch, getState) => {
     try {
-       await createUserWithEmailAndPassword(auth, email, password);
-         const user = await auth.currentUser;
-         user.updateProfile({
-           displayName: login
-         });
-         const { uid, displayName } = await auth.currentUser;
-         const uploadUserProfile = {userId: uid, login: displayName}
-       dispatch(updateUserProfile(uploadUserProfile));
+      await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(auth.currentUser, {
+        displayName: login,
+      });
+      const { uid, displayName } = await auth.currentUser;
+      const userUpdate = { userId: uid, login: displayName };
+      dispatch(updateUserProfile(userUpdate));
     } catch (error) {
-        console.log('error', error.message)
+      console.log("error", error.message);
     }
-};
+  };
 
 export const authSignInUser =
   ({ email, password }) =>
@@ -26,4 +33,17 @@ export const authSignInUser =
     }
   };
 
-export const authSignOutUser = () => async (dispatch, getState) => {  await onAuthStateChanged(auth, (user) => setState(user));};
+export const authStateChangeUser = () => async (dispatch, getState) => {
+  await onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const userUpdate = { userId: user.uid, login: user.displayName };
+      dispatch(authStateChange({ stateChange: true }));
+      dispatch(updateUserProfile(userUpdate));
+    }
+  });
+};
+
+export const authSignOutUser = () => async (dispatch, getState) => {
+  await signOut(auth).then()
+  dispatch(authSignOut());
+};

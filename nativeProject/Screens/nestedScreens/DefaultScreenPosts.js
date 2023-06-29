@@ -9,15 +9,21 @@ import {
   FlatList,
 } from "react-native";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { authSignOutUser } from "../../redux/auth/authOperations";
+
 
 export const DefaultScreenPost = ({ route, navigation }) => {
   const [posts, setPosts] = useState([]);
-  useEffect(() => {
+  const dispatch = useDispatch()
+    useEffect(() => {
     if (route.params) {
       setPosts((prevState) => [...prevState, route.params]);
     }
   }, [route.params]);
-
+  const signOutUser = () => {
+    dispatch(authSignOutUser());
+  }
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -27,6 +33,7 @@ export const DefaultScreenPost = ({ route, navigation }) => {
           name="log-out"
           size={24}
           color="#BDBDBD"
+          onPress={signOutUser}
         />
       </View>
       <View style={styles.post}>

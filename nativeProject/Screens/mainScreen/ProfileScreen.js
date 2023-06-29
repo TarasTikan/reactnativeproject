@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
 import {
-  Button,
   Image,
   ImageBackground,
   StyleSheet,
@@ -9,7 +8,13 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import { authSignOutUser } from "../../redux/auth/authOperations";
 export const ProfileScreen = () => {
+  const dispatch = useDispatch()
+    const signOutUser = () => {
+      dispatch(authSignOutUser());
+    };
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -31,6 +36,7 @@ export const ProfileScreen = () => {
             name="log-out"
             size={24}
             color="#BDBDBD"
+            onPress={signOutUser}
           />
           <Text style={styles.nameUser}>Natali Romanova</Text>
           <View style={styles.postsUser}>
