@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import {
+  FlatList,
   Image,
   ImageBackground,
   StyleSheet,
@@ -8,10 +9,36 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { authSignOutUser } from "../../redux/auth/authOperations";
+import { useEffect, useState } from "react";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "../../firebase/config";
 export const ProfileScreen = () => {
-  const dispatch = useDispatch()
+  const [posts, setPosts] = useState([]);
+  const { login, userId } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
+  const getUserPosts = async () => {
+    const q = await query(
+      collection(db, "posts"),
+      where("userId", "==", userId)
+    );
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const posts = [];
+      querySnapshot.forEach((doc) => {
+        posts.push(doc.data());
+      });
+      console.log("Current posts: ", posts);
+      setPosts(posts);
+    });
+  };
+
+  useEffect(() => {
+    getUserPosts();
+  }, []);
+
     const signOutUser = () => {
       dispatch(authSignOutUser());
     };
@@ -38,32 +65,44 @@ export const ProfileScreen = () => {
             color="#BDBDBD"
             onPress={signOutUser}
           />
-          <Text style={styles.nameUser}>Natali Romanova</Text>
-          <View style={styles.postsUser}>
-            <Image
-              source={require("../../assets/images/Post1.jpg")}
-              style={styles.postImg}
-            />
-            <Text style={styles.titlePost}>Лес</Text>
-            <View style={styles.infoPost}>
-              <Feather name="message-circle" size={24} color="#FF6C00" />
-              <Text style={styles.socInfo}>8</Text>
-              <Feather name="thumbs-up" size={24} color="#FF6C00" />
-              <Text style={{ ...styles.socInfo, marginRight: "auto" }}>
-                153
-              </Text>
-              <Feather name="map-pin" size={24} color="#BDBDBD" />
-              <Text
-                style={{
-                  ...styles.socInfo,
-                  textDecorationLine: "underline",
-                  textDecorationColor: "#000",
-                }}
-              >
-                Ukraine
-              </Text>
-            </View>
-          </View>
+          <Text style={styles.nameUser}>{login}</Text>
+          <FlatList
+            data={posts}
+            renderItem={({ item }) => (
+              <View style={styles.postsUser}>
+                <Image source={{ uri: item.photoUrl }} style={styles.postImg} />
+                <Text style={styles.titlePost}>{item.titlePhoto}</Text>
+                <View style={styles.infoPost}>
+                  <TouchableOpacity
+                    style={styles.commentsPost}
+                    onPress={() =>
+                      navigation.navigate("Comments", { postId: item.userId })
+                    }
+                  >
+                    <Feather name="message-circle" size={24} color="#BDBDBD" />
+                    <Text style={styles.socInfo}>
+                      8
+                    </Text>
+                  </TouchableOpacity>
+                  <Feather name="thumbs-up" size={24} color="#FF6C00" />
+                  <Text style={{ ...styles.socInfo, marginRight: "auto" }}>
+                    153
+                  </Text>
+                  <Feather name="map-pin" size={24} color="#BDBDBD" />
+                  <Text
+                    style={{
+                      ...styles.socInfo,
+                      textDecorationLine: "underline",
+                      textDecorationColor: "#000",
+                    }}
+                  >
+                    {item.mapPhotoText}
+                  </Text>
+                </View>
+              </View>
+            )}
+            keyExtractor={(item, index) => index.toString()}
+          />
         </View>
       </ImageBackground>
       <StatusBar style="auto" />
@@ -145,3 +184,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+ 
